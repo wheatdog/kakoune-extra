@@ -9,24 +9,24 @@ decl str working_folder
 
 def -hidden \
     autochdir-wrapper %{ %sh{
-        if [ "${kak_opt_autochdir}" == "true" ] && [ ! -z "${kak_opt_working_folder}" ] && [ -d "${kak_opt_working_folder}" ]; then
-            echo "cd ${kak_opt_working_folder}" 
+        if [ "${kak_opt_autochdir}" = "true" ] && [ -n "${kak_opt_working_folder}" ] && [ -d "${kak_opt_working_folder}" ]; then
+            printf 'cd %s\n' "${kak_opt_working_folder}"
         fi
 } }
 
-def -shell-candidates %{ls -d */} -params ..1 -docstring %{change-directory! [<directory>] : like change-directory, but also update the buffer's working directory} \
+def -file-completion -params 1 -docstring %{change-directory! [<directory>] : like change-directory, but also update the buffer's working directory} \
     change-directory! %{ %sh{
-        echo "cd $@"
+        printf 'cd %s\n' "$@"
     } 
-    set buffer working_folder %sh{ echo $(pwd) }
+    set buffer working_folder %sh{pwd}
 }
 
 hook global BufCreate .* %{
     set buffer working_folder %sh{ 
-        if [ "$(basename ${kak_buffile})" == "COMMIT_EDITMSG" ]; then
-            echo $(git rev-parse --show-toplevel)
+        if [ "${kak_buffile##*/}" = "COMMIT_EDITMSG" ]; then
+            git rev-parse --show-toplevel
         else
-            echo $(dirname ${kak_buffile}) 
+            dirname ${kak_buffile}
         fi 
     }
     autochdir-wrapper
