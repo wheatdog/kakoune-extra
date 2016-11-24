@@ -14,7 +14,7 @@ def -hidden \
         fi
 } }
 
-def -file-completion -params 1 -docstring %{change-directory! [<directory>] : like change-directory, but also update the buffer's working directory} \
+def -file-completion -params ..1 -docstring %{change-directory! [<directory>] : like change-directory, but also update the buffer's working directory} \
     change-directory! %{ %sh{
         printf 'cd %s\n' "$@"
     } 
